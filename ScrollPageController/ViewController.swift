@@ -11,7 +11,6 @@ class ViewController: UIViewController {
     
     lazy var scrollView: UIScrollView = makeScrollView()
     lazy var pageControll: UIPageControl = makePageControl()
-
     
     private func commonInit() {
         
@@ -42,18 +41,39 @@ class ViewController: UIViewController {
         scrollView.isPagingEnabled = true
         pageControll.numberOfPages = images.count
         
-        for index in 0..<images.count {
-            frame.origin.x = scrollView.frame.size.width * CGFloat(index)
-            frame.size = scrollView.frame.size
-            print(frame)
-            let imageView = UIImageView(frame: frame)
-            imageView.image = UIImage(named: images[index])
-            imageView.contentMode = .scaleAspectFit
-            self.scrollView.addSubview(imageView)
-        }
+        loadImageViews()
         
         scrollView.contentSize = CGSize(width: scrollView.frame.size.width * CGFloat(images.count),
                                         height: scrollView.frame.size.height)
+    }
+    
+    
+    var imageViews: [UIImageView] = []
+    
+    private func loadImageViews() {
+        
+        scrollView.subviews.forEach({ $0.removeFromSuperview() })
+        imageViews.removeAll()
+        
+        for index in 0..<images.count {
+            frame.origin.x = scrollView.frame.size.width * CGFloat(index)
+            frame.size = scrollView.frame.size
+
+            let imageView = UIImageView()
+           
+//            if index == pageControll.currentPage {
+//                frame.size.width = frame.size.width * 1.1
+//                frame.size.height = frame.size.height * 1.1
+//            }
+            
+            imageView.frame = frame
+            
+            imageView.image = UIImage(named: images[index])
+            imageView.contentMode = .scaleAspectFit
+            
+            imageViews.append(imageView)
+            self.scrollView.addSubview(imageView)
+        }
     }
     
     private func makeScrollView() -> UIScrollView {
@@ -73,12 +93,12 @@ class ViewController: UIViewController {
     }
     
     @objc func pageDotClicked() {
-        print(pageControll.currentPage)
         scrollView.scrollRectToVisible(CGRect(x: scrollView.frame.width * CGFloat(pageControll.currentPage),
                                               y: 0,
                                               width: scrollView.frame.width,
                                               height: scrollView.frame.height),
                                        animated: true)
+        loadImageViews()
     }
     
 }
@@ -88,12 +108,24 @@ extension ViewController : UIScrollViewDelegate {
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         let pagenumberr = scrollView.contentOffset.x / scrollView.frame.size.width
         pageControll.currentPage = Int(pagenumberr)
+        loadImageViews()
     }
+    
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        print(pageControll.currentPage, " : ", scrollView.contentOffset.x)
+//
+//        if pageControll.currentPage == 0 {
+//            let currentImageView = imageViews[pageControll.currentPage]
+//            let nextImageView = imageViews[pageControll.currentPage + 1]
+//
+//            currentImageView.alpha = 1.0 - (0.001 * CGFloat(scrollView.contentOffset.x))
+//        }
+//
+//        if pageControll.currentPage == imageViews.count - 1 {
+//            let currentImageView = imageViews[imageViews.count - 1]
+//            let prevImageView = imageViews[pageControll.currentPage]
+//
+//            currentImageView.alpha += 0.001 * CGFloat(scrollView.contentOffset.x)
+//        }
+//    }
 }
-
-
-var count = 5
-var itemWidth = 200
-var itemHeight = 100
-var scrollViewContentWidth = itemWidth * count
-var scrollViewContentHeight = 100
